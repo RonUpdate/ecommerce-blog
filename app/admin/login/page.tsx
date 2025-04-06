@@ -1,14 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Lock, Mail } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { supabase } from "@/lib/supabase" // Импортируем Supabase
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,18 +21,19 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    // Simulate authentication
     try {
-      // In a real app, this would be an API call to authenticate
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Аутентификация через Supabase
+      const { user, error } = await supabase.auth.signIn({
+        email,
+        password,
+      })
 
-      // For demo purposes, hardcoded credentials
-      if (email === "admin@example.com" && password === "password") {
-        // In a real app, you would store the token in localStorage or a cookie
-        localStorage.setItem("isAuthenticated", "true")
-        router.push("/admin")
-      } else {
+      if (error) {
         setError("Неверный email или пароль")
+      } else {
+        // Если аутентификация успешна, редиректим в админку
+        localStorage.setItem("isAuthenticated", "true")
+        router.push("/admin/products")
       }
     } catch (err) {
       setError("Произошла ошибка при входе")
@@ -93,4 +93,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
